@@ -231,64 +231,64 @@ class VoiceAssistant {
             }
         }
 
+    
         // Unit Conversion
-        // Unit Conversion
-    if (command.includes('convert')) {
-        const conversionMatch = command.match(/convert (\d+) (.+) to (.+)/);
-        if (conversionMatch) {
-            const amount = parseFloat(conversionMatch[1]);
-            const fromUnit = conversionMatch[2].trim().toLowerCase();
-            const toUnit = conversionMatch[3].trim().toLowerCase();
+        else if (command.includes('convert')) {
+            const conversionMatch = command.match(/convert (\d+) (.+) to (.+)/);
+            if (conversionMatch) {
+                const amount = parseFloat(conversionMatch[1]);
+                const fromUnit = conversionMatch[2].trim().toLowerCase();
+                const toUnit = conversionMatch[3].trim().toLowerCase();
 
-            let result;
+                let result;
 
-            // Check if units are for length
-            if (Object.keys(conversionFactors.length).includes(fromUnit) && Object.keys(conversionFactors.length).includes(toUnit)) {
-                const baseUnit = conversionFactors.length[fromUnit];
-                const targetUnit = conversionFactors.length[toUnit];
-                result = amount * baseUnit / targetUnit;
-                response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
-            }
-            // Check if units are for weight
-            else if (Object.keys(conversionFactors.weight).includes(fromUnit) && Object.keys(conversionFactors.weight).includes(toUnit)) {
-                const baseUnit = conversionFactors.weight[fromUnit];
-                const targetUnit = conversionFactors.weight[toUnit];
-                result = amount * baseUnit / targetUnit;
-                response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
-            }
-            // Check if units are for temperature
-            else if (['celsius', 'fahrenheit', 'kelvin'].includes(fromUnit) && ['celsius', 'fahrenheit', 'kelvin'].includes(toUnit)) {
-                let baseValue;
-                switch (fromUnit) {
-                    case 'fahrenheit':
-                        baseValue = conversionFactors.temperature.fahrenheit(amount);
-                        break;
-                    case 'kelvin':
-                        baseValue = conversionFactors.temperature.kelvin(amount);
-                        break;
-                    default:
-                        baseValue = amount; // Celsius
+                // Check if units are for length
+                if (Object.keys(conversionFactors.length).includes(fromUnit) && Object.keys(conversionFactors.length).includes(toUnit)) {
+                    const baseUnit = conversionFactors.length[fromUnit];
+                    const targetUnit = conversionFactors.length[toUnit];
+                    result = amount * baseUnit / targetUnit;
+                    response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
                 }
-
-                switch (toUnit) {
-                    case 'fahrenheit':
-                        result = baseValue * 9 / 5 + 32;
-                        break;
-                    case 'kelvin':
-                        result = baseValue + 273.15;
-                        break;
-                    default:
-                        result = baseValue; // Celsius
+                // Check if units are for weight
+                else if (Object.keys(conversionFactors.weight).includes(fromUnit) && Object.keys(conversionFactors.weight).includes(toUnit)) {
+                    const baseUnit = conversionFactors.weight[fromUnit];
+                    const targetUnit = conversionFactors.weight[toUnit];
+                    result = amount * baseUnit / targetUnit;
+                    response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
                 }
+                // Check if units are for temperature
+                else if (['celsius', 'fahrenheit', 'kelvin'].includes(fromUnit) && ['celsius', 'fahrenheit', 'kelvin'].includes(toUnit)) {
+                    let baseValue;
+                    switch (fromUnit) {
+                        case 'fahrenheit':
+                            baseValue = conversionFactors.temperature.fahrenheit(amount);
+                            break;
+                        case 'kelvin':
+                            baseValue = conversionFactors.temperature.kelvin(amount);
+                            break;
+                        default:
+                            baseValue = amount; // Celsius
+                    }
 
-                response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
+                    switch (toUnit) {
+                        case 'fahrenheit':
+                            result = baseValue * 9 / 5 + 32;
+                            break;
+                        case 'kelvin':
+                            result = baseValue + 273.15;
+                            break;
+                        default:
+                            result = baseValue; // Celsius
+                    }
+
+                    response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
+                } else {
+                    response = "Unsupported unit conversion.";
+                }
             } else {
-                response = "Unsupported unit conversion.";
+                response = "Please specify the amount and units to convert.";
             }
-        } else {
-            response = "Please specify the amount and units to convert.";
         }
-    }
 
         // Get News
         else if (command.includes('news about') || command.includes('news on')) {
