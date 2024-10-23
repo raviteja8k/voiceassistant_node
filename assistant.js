@@ -101,12 +101,24 @@ class VoiceAssistant {
 
         // Personalized Greetings
         if (command.includes('hello') || command.includes('hi')) {
-            response = "Hello! How can I assist you today?"; // Personalized greeting
+            const responses = ["Hello!", "Hi there!", "Greetings!"];
+            response = responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        // Personalized Greetings with Name
+        else if (command.includes('my name is') || command.includes('i am')) {
+            const nameMatch = command.match(/(?:my name is|i am) (.+)/);
+            const name = nameMatch ? nameMatch[1].trim() : '';
+            if (name) {
+                response = `Hi ${name}!`; // Prepare personalized greeting
+            } else {
+                response = "Please tell me your name."; // Handle error
+            }
         }
 
         // Set a Timer or Alarm
         else if (command.includes('set a timer')) {
-            const timeMatch = command.match(/set a timer for (\d+) (minutes?|hours?)/);
+            const timeMatch = command.match(/set a timer for (\d+) (minutes?|hours?|seconds?)/);
             if (timeMatch) {
                 const time = parseInt(timeMatch[1]);
                 const unit = timeMatch[2];
@@ -161,8 +173,18 @@ class VoiceAssistant {
             const wordMatch = command.match(/define (.+)/);
             const word = wordMatch ? wordMatch[1].trim() : '';
             if (word) {
-                // Logic to get the definition (you may need to implement a dictionary API)
-                response = `Defining the word "${word}".`; // Prepare response
+                try {
+                    const definitionResponse = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`); // Fetch definition from the API
+                    const definitionData = await definitionResponse.json(); // Parse JSON response
+                    if (definitionData.length > 0) {
+                        const definition = definitionData[0].meanings[0].definitions[0].definition; // Get the first definition
+                        response = `Definition of "${word}": ${definition}`; // Prepare response with definition
+                    } else {
+                        response = "No definition found."; // Handle no definition found
+                    }
+                } catch (error) {
+                    response = "Sorry, I couldn't fetch the definition at the moment."; // Handle fetch error
+                }
             } else {
                 response = "Please specify a word to define."; // Handle error
             }
@@ -192,8 +214,8 @@ class VoiceAssistant {
                     const newsData = await newsResponse.json(); // Parse JSON response
                     console.log(newsData); // Log the entire news data response
                     if (newsData.status === "ok" && newsData.totalResults > 0) {
-                        const headlines = newsData.articles.map(article => article.title).join(', '); // Extract headlines
-                        response = `Here are the headlines: ${headlines}`; // Prepare response
+                        const headlines = newsData.articles.slice(0, 5).map(article => article.title).join(', '); // Extract headlines
+                        response = `Here are the headlines:\n ${headlines}`; // Prepare response
                     } else {
                         response = "No news articles found."; // Handle no articles found
                     }
@@ -203,6 +225,12 @@ class VoiceAssistant {
             } else {
                 response = "Please specify what you want the news on."; // Handle error
             }
+        }
+
+        // Stop Reading
+        else if (command.includes('stop')) {
+            this.synthesis.cancel(); // Stop speech synthesis
+            response = "Stopped reading."; // Prepare response
         }
 
         // Fetch Weather
@@ -226,6 +254,8 @@ class VoiceAssistant {
             } else {
                 response = "Please specify a location to get the weather."; // Handle error for missing location
             }
+        }else{
+            response = "I'm not sure how to help with that. Try commands like 'time', 'date', 'news', 'weather', 'define' or 'hello'";
         }
 
         // ... existing command checks ...
