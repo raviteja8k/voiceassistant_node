@@ -99,6 +99,35 @@ class VoiceAssistant {
         command = command.toLowerCase(); // Convert command to lowercase
         let response = '';
 
+        // Define conversion factors
+    const conversionFactors = {
+        length: {
+            'inch': 1,
+            'foot': 12,
+            'yard': 36,
+            'mile': 63360,
+            'centimetre': 2.54,
+            'meter': 39.37,
+            'cm': 2.54,
+            'm': 39.37,
+            'kilometer': 39370,
+            'km': 39370
+        },
+        weight: {
+            'gram': 1,
+            'kilogram': 1000,
+            'g': 1,
+            'kg': 1000,
+            'ounce': 28.35,
+            'pound': 453.592
+        },
+        temperature: {
+            'celsius': (c) => c,
+            'fahrenheit': (f) => (f - 32) * 5 / 9,
+            'kelvin': (k) => k - 273.15
+        }
+    };
+
         // Personalized Greetings
         if (command.includes('hello') || command.includes('hi')) {
             const responses = ["Hello!", "Hi there!", "Greetings!"];
@@ -126,6 +155,18 @@ class VoiceAssistant {
                 response = `Timer set for ${time} ${unit}.`; // Prepare response
             } else {
                 response = "Please specify the duration for the timer."; // Handle error
+            }
+        }
+
+        // Open a URL
+        else if (command.includes('open')) {
+            const queryMatch = command.match(/(?:open) (.+)/);
+            const query = queryMatch ? queryMatch[1].trim() : '';
+            if (query) {
+                window.open(`https:${encodeURIComponent(query)}.com`, '_blank'); // Open search in new tab
+                response = `Opening ${query}.`; // Prepare response
+            } else {
+                response = "Please specify the website to open."; // Handle error
             }
         }
 
@@ -191,18 +232,63 @@ class VoiceAssistant {
         }
 
         // Unit Conversion
-        else if (command.includes('convert')) {
-            const conversionMatch = command.match(/convert (\d+) (.+) to (.+)/);
-            if (conversionMatch) {
-                const amount = conversionMatch[1];
-                const fromUnit = conversionMatch[2].trim();
-                const toUnit = conversionMatch[3].trim();
-                // Logic to perform unit conversion (you may need to implement this)
-                response = `Converting ${amount} ${fromUnit} to ${toUnit}.`; // Prepare response
-            } else {
-                response = "Please specify the amount and units to convert."; // Handle error
+        // Unit Conversion
+    if (command.includes('convert')) {
+        const conversionMatch = command.match(/convert (\d+) (.+) to (.+)/);
+        if (conversionMatch) {
+            const amount = parseFloat(conversionMatch[1]);
+            const fromUnit = conversionMatch[2].trim().toLowerCase();
+            const toUnit = conversionMatch[3].trim().toLowerCase();
+
+            let result;
+
+            // Check if units are for length
+            if (Object.keys(conversionFactors.length).includes(fromUnit) && Object.keys(conversionFactors.length).includes(toUnit)) {
+                const baseUnit = conversionFactors.length[fromUnit];
+                const targetUnit = conversionFactors.length[toUnit];
+                result = amount * baseUnit / targetUnit;
+                response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
             }
+            // Check if units are for weight
+            else if (Object.keys(conversionFactors.weight).includes(fromUnit) && Object.keys(conversionFactors.weight).includes(toUnit)) {
+                const baseUnit = conversionFactors.weight[fromUnit];
+                const targetUnit = conversionFactors.weight[toUnit];
+                result = amount * baseUnit / targetUnit;
+                response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
+            }
+            // Check if units are for temperature
+            else if (['celsius', 'fahrenheit', 'kelvin'].includes(fromUnit) && ['celsius', 'fahrenheit', 'kelvin'].includes(toUnit)) {
+                let baseValue;
+                switch (fromUnit) {
+                    case 'fahrenheit':
+                        baseValue = conversionFactors.temperature.fahrenheit(amount);
+                        break;
+                    case 'kelvin':
+                        baseValue = conversionFactors.temperature.kelvin(amount);
+                        break;
+                    default:
+                        baseValue = amount; // Celsius
+                }
+
+                switch (toUnit) {
+                    case 'fahrenheit':
+                        result = baseValue * 9 / 5 + 32;
+                        break;
+                    case 'kelvin':
+                        result = baseValue + 273.15;
+                        break;
+                    default:
+                        result = baseValue; // Celsius
+                }
+
+                response = `Converting ${amount} ${fromUnit} to ${toUnit}: ${result} ${toUnit}`;
+            } else {
+                response = "Unsupported unit conversion.";
+            }
+        } else {
+            response = "Please specify the amount and units to convert.";
         }
+    }
 
         // Get News
         else if (command.includes('news about') || command.includes('news on')) {
