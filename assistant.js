@@ -66,6 +66,7 @@ class VoiceAssistant {
         if (this.isListening) {
             this.recognition.stop(); // Stop recognition
         } else {
+            this.synthesis.cancel(); // Stop any ongoing speech
             this.recognition.start(); // Start recognition
         }
     }
@@ -170,6 +171,17 @@ class VoiceAssistant {
             }
         }
 
+        // Pronounce
+        else if (command.includes('pronounce')) {
+            const queryMatch = command.match(/(?:pronounce) (.+)/);
+            const query = queryMatch ? queryMatch[1].trim() : '';
+            if (query) {                
+                response = `${query}.`; // Prepare response
+            } else {
+                response = "Please specify the word to pronounce."; // Handle error
+            }
+        }
+
         // Search the Web
         else if (command.includes('search for') || command.includes('search about')) {
             const queryMatch = command.match(/(?:search for|search about) (.+)/);
@@ -196,18 +208,39 @@ class VoiceAssistant {
             response = "The only way to do great work is to love what you do. - Steve Jobs"; // Example quote
         }
 
-        // Translate Text
-        else if (command.includes('translate')) {
-            const translationMatch = command.match(/translate (.+) to (.+)/);
-            if (translationMatch) {
-                const textToTranslate = translationMatch[1].trim();
-                const targetLanguage = translationMatch[2].trim();
-                // Logic to translate text (you may need to implement a translation API)
-                response = `Translating "${textToTranslate}" to ${targetLanguage}.`; // Prepare response
-            } else {
-                response = "Please specify the text and the language to translate to."; // Handle error
+        // Calculate
+        else if (command.includes('calculate')) {
+            try {
+                // Extract the mathematical expression from the command
+                const expression = command.replace('calculate', '').trim();
+
+                // Replace 'x' with '*' for multiplication
+                const safeExpression = expression.replace(/x/g, '*');
+                
+                // Evaluate the mathematical expression (Make sure input is safe)
+                response = `The result is: ${eval(safeExpression)}`;
+                
+            } catch (error) {
+                response = "Sorry, I couldn't calculate that. Please try a valid mathematical expression.";
+                console.error('Error in calculation:', error);
             }
         }
+
+        // Translate Text
+        else if (command.includes('translate')) {
+            const queryMatch = command.match(/(?:translate) (.+)/);
+            const query = queryMatch ? queryMatch[1].trim() : '';
+            if (query) {
+                window.open(`https://www.google.com/search?q=translate ${encodeURIComponent(query)}`, '_blank'); // Open search in new tab
+                response = `Searching for ${query}.`; // Prepare response
+            } else {
+                response = "Please specify the word you want to translate"; // Handle error
+            }
+        }
+        
+        
+        
+
 
         // Get Definitions
         else if (command.includes('define')) {
