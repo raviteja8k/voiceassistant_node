@@ -118,8 +118,8 @@ class VoiceAssistant {
         }
 
         // Search the Web
-        else if (command.includes('search for')) {
-            const queryMatch = command.match(/search for (.+)/);
+        else if (command.includes('search for') || command.includes('search about')) {
+            const queryMatch = command.match(/(?:search for|search about) (.+)/);
             const query = queryMatch ? queryMatch[1].trim() : '';
             if (query) {
                 window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank'); // Open search in new tab
@@ -182,19 +182,26 @@ class VoiceAssistant {
             }
         }
 
-        // Fetch News
-        else if (command.includes('news')) {
-            try {
-                const newsResponse = await fetch('https://newsapi.org/v2/top-headlines?country=us&apiKey=88d98dcdab1945b185182fc363f775cb'); // Fetch top news headlines
-                const newsData = await newsResponse.json(); // Parse JSON response
-                if (newsData.articles && newsData.articles.length > 0) {
-                    const headlines = newsData.articles.map(article => article.title).join(', '); // Prepare headlines
-                    response = `Here are the top news headlines: ${headlines}`; // Prepare response
-                } else {
-                    response = "Sorry, I couldn't find any news at the moment."; // Handle no articles found
+        // Get News
+        else if (command.includes('news about') || command.includes('news on')) {
+            const queryMatch = command.match(/(?:news about|news on) (.+)/);
+            const query = queryMatch ? queryMatch[1].trim() : '';
+            if (query) {
+                try {
+                    const newsResponse = await fetch(`https://newsapi.org/v2/top-headlines?q=${encodeURIComponent(query)}&sortBy=popularity&apiKey=88d98dcdab1945b185182fc363f775cb`); // Fetch news
+                    const newsData = await newsResponse.json(); // Parse JSON response
+                    console.log(newsData); // Log the entire news data response
+                    if (newsData.status === "ok" && newsData.totalResults > 0) {
+                        const headlines = newsData.articles.map(article => article.title).join(', '); // Extract headlines
+                        response = `Here are the headlines: ${headlines}`; // Prepare response
+                    } else {
+                        response = "No news articles found."; // Handle no articles found
+                    }
+                } catch (error) {
+                    response = "Sorry, I couldn't fetch the news at the moment."; // Handle fetch error
                 }
-            } catch (error) {
-                response = "Sorry, I couldn't fetch the news at the moment."; // Handle fetch error
+            } else {
+                response = "Please specify what you want the news on."; // Handle error
             }
         }
 
