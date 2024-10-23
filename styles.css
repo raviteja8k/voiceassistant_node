@@ -4,15 +4,16 @@ body {
     padding: 0;
     background: #f0f2f5;
     height: 100vh;
-    display: flex;
+    /* display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; */
 }
 
 .container {
     width: 100%;
     max-width: 600px;
     padding: 20px;
+    margin:0 auto;
 }
 
 .assistant-container {
@@ -47,9 +48,9 @@ h3 {
     cursor: pointer;
     transition: all 0.3s ease;
     margin: 1rem 0;
-    display: flex;
+    /* display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; */
 }
 
 .mic-button:hover {
@@ -105,4 +106,8 @@ h3 {
     100% {
         transform: scale(1);
     }
+}
+
+footer{
+    text-align: center;
 }

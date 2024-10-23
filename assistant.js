@@ -99,64 +99,130 @@ class VoiceAssistant {
         command = command.toLowerCase(); // Convert command to lowercase
         let response = '';
 
-        // Check for specific commands and generate appropriate responses
-        if (command.includes('time')) {
-            const time = new Date().toLocaleTimeString(); // Get current time
-            response = `The current time is ${time}`; // Prepare response
-        } else if (command.includes('date')) {
-            const date = new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }); // Get current date
-            response = `Today is ${date}`; // Prepare response
-        } else if (command.includes('news')) {
-            try {
-                const newsResponse = await fetch('https://api.spaceflightnewsapi.net/v3/articles?_limit=1'); // Fetch latest news
-                const data = await newsResponse.json(); // Parse JSON response
-                if (data && data.length > 0) {
-                    response = `Latest news: ${data[0].title}`; // Prepare response with news title
-                }
-            } catch (error) {
-                response = "Sorry, I couldn't fetch the news at the moment"; // Handle fetch error
-            }
-        } else if (command.includes('hello') || command.includes('hi')) {
-            const responses = ["Hello!", "Hi there!", "Greetings!"]; // Possible greetings
-            response = responses[Math.floor(Math.random() * responses.length)]; // Randomly select a greeting
-        } else if (command.includes('weather')) {
-            // Extract city name from the command
-            const cityMatch = command.match(/weather in (\w+)/);
-            const city = cityMatch ? cityMatch[1] : 'London'; // Default to Hyderabad if no city is specified
-
-            try {
-                const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=1c58dc53bb5637c46b636c4b1a4d6c02&units=metric`); // Fetch weather data
-                const data = await weatherResponse.json(); // Parse JSON response
-                if (data && data.main) {
-                    const temperature = data.main.temp; // Get temperature
-                    const weatherDescription = data.weather[0].description; // Get weather description
-                    response = `The current temperature in ${city} is ${temperature}°C with ${weatherDescription}.`; // Prepare response
-                } else {
-                    response = "Sorry, I couldn't find the weather for that location."; // Handle case where city is not found
-                }
-            } catch (error) {
-                response = "Sorry, I couldn't fetch the weather at the moment"; // Handle fetch error
-            }
-        } else if (command.includes('open')) {
-            // Extract the site name from the command
-            const siteMatch = command.match(/open (.+)/);
-            const siteName = siteMatch ? siteMatch[1].trim() : ''; // Get the site name
-
-            if (siteName) {
-                const url = `https://${siteName}.com`; // Construct the URL
-                window.open(url, '_blank'); // Open the site in a new tab
-                response = `Opening ${siteName} in a new tab.`; // Prepare response
-            } else {
-                response = "Please specify a site name to open."; // Handle case where no site name is provided
-            }
-        } else {
-            response = "I'm not sure how to help with that. Try commands like 'time', 'date', 'news', or 'hello'"; // Default response
+        // Personalized Greetings
+        if (command.includes('hello') || command.includes('hi')) {
+            response = "Hello! How can I assist you today?"; // Personalized greeting
         }
 
+        // Set a Timer or Alarm
+        else if (command.includes('set a timer')) {
+            const timeMatch = command.match(/set a timer for (\d+) (minutes?|hours?)/);
+            if (timeMatch) {
+                const time = parseInt(timeMatch[1]);
+                const unit = timeMatch[2];
+                // Logic to set a timer (you may need to implement a timer function)
+                response = `Timer set for ${time} ${unit}.`; // Prepare response
+            } else {
+                response = "Please specify the duration for the timer."; // Handle error
+            }
+        }
+
+        // Search the Web
+        else if (command.includes('search for')) {
+            const queryMatch = command.match(/search for (.+)/);
+            const query = queryMatch ? queryMatch[1].trim() : '';
+            if (query) {
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank'); // Open search in new tab
+                response = `Searching for ${query}.`; // Prepare response
+            } else {
+                response = "Please specify what you want to search for."; // Handle error
+            }
+        }
+
+        // Get Jokes or Quotes
+        else if (command.includes('tell me a joke')) {
+            try {
+                const jokeResponse = await fetch('https://official-joke-api.appspot.com/random_joke'); // Fetch a random joke
+                const jokeData = await jokeResponse.json(); // Parse JSON response
+                response = `${jokeData.setup} ${jokeData.punchline}`; // Prepare response with setup and punchline
+            } catch (error) {
+                response = "Sorry, I couldn't fetch a joke at the moment."; // Handle fetch error
+            }
+        } else if (command.includes('give me a quote')) {
+            // Fetch a random quote from an API (you may need to implement this)
+            response = "The only way to do great work is to love what you do. - Steve Jobs"; // Example quote
+        }
+
+        // Translate Text
+        else if (command.includes('translate')) {
+            const translationMatch = command.match(/translate (.+) to (.+)/);
+            if (translationMatch) {
+                const textToTranslate = translationMatch[1].trim();
+                const targetLanguage = translationMatch[2].trim();
+                // Logic to translate text (you may need to implement a translation API)
+                response = `Translating "${textToTranslate}" to ${targetLanguage}.`; // Prepare response
+            } else {
+                response = "Please specify the text and the language to translate to."; // Handle error
+            }
+        }
+
+        // Get Definitions
+        else if (command.includes('define')) {
+            const wordMatch = command.match(/define (.+)/);
+            const word = wordMatch ? wordMatch[1].trim() : '';
+            if (word) {
+                // Logic to get the definition (you may need to implement a dictionary API)
+                response = `Defining the word "${word}".`; // Prepare response
+            } else {
+                response = "Please specify a word to define."; // Handle error
+            }
+        }
+
+        // Unit Conversion
+        else if (command.includes('convert')) {
+            const conversionMatch = command.match(/convert (\d+) (.+) to (.+)/);
+            if (conversionMatch) {
+                const amount = conversionMatch[1];
+                const fromUnit = conversionMatch[2].trim();
+                const toUnit = conversionMatch[3].trim();
+                // Logic to perform unit conversion (you may need to implement this)
+                response = `Converting ${amount} ${fromUnit} to ${toUnit}.`; // Prepare response
+            } else {
+                response = "Please specify the amount and units to convert."; // Handle error
+            }
+        }
+
+        // Fetch News
+        else if (command.includes('news')) {
+            try {
+                const newsResponse = await fetch('https://newsapi.org/v2/top-headlines?country=us&apiKey=88d98dcdab1945b185182fc363f775cb'); // Fetch top news headlines
+                const newsData = await newsResponse.json(); // Parse JSON response
+                if (newsData.articles && newsData.articles.length > 0) {
+                    const headlines = newsData.articles.map(article => article.title).join(', '); // Prepare headlines
+                    response = `Here are the top news headlines: ${headlines}`; // Prepare response
+                } else {
+                    response = "Sorry, I couldn't find any news at the moment."; // Handle no articles found
+                }
+            } catch (error) {
+                response = "Sorry, I couldn't fetch the news at the moment."; // Handle fetch error
+            }
+        }
+
+        // Fetch Weather
+        else if (command.includes('weather')) {
+            const locationMatch = command.match(/weather in (.+)/);
+            if (locationMatch) {
+                const location = locationMatch[1].trim();
+                try {
+                    const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=31e124c9141d013b0b8dc13c0e81abfe&units=metric`); // Fetch weather data
+                    const weatherData = await weatherResponse.json(); // Parse JSON response
+                    if (weatherData.main) {
+                        const temperature = weatherData.main.temp; // Get temperature
+                        const description = weatherData.weather[0].description; // Get weather description
+                        response = `The current temperature in ${location} is ${temperature}°C with ${description}.`; // Prepare response
+                    } else {
+                        response = "Sorry, I couldn't find the weather for that location."; // Handle no weather data found
+                    }
+                } catch (error) {
+                    response = "Sorry, I couldn't fetch the weather at the moment."; // Handle fetch error
+                }
+            } else {
+                response = "Please specify a location to get the weather."; // Handle error for missing location
+            }
+        }
+
+        // ... existing command checks ...
+        // ... existing default response ...
         this.speak(response); // Speak the generated response
     }
 }
