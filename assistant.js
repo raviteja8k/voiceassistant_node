@@ -101,33 +101,45 @@ class VoiceAssistant {
         let response = '';
 
         // Define conversion factors
-    const conversionFactors = {
-        length: {
-            'inch': 1,
-            'foot': 12,
-            'yard': 36,
-            'mile': 63360,
-            'centimetre': 2.54,
-            'meter': 39.37,
-            'cm': 2.54,
-            'm': 39.37,
-            'kilometer': 39370,
-            'km': 39370
-        },
-        weight: {
-            'gram': 1,
-            'kilogram': 1000,
-            'g': 1,
-            'kg': 1000,
-            'ounce': 28.35,
-            'pound': 453.592
-        },
-        temperature: {
-            'celsius': (c) => c,
-            'fahrenheit': (f) => (f - 32) * 5 / 9,
-            'kelvin': (k) => k - 273.15
-        }
-    };
+        const conversionFactors = {
+            length: {
+                'inch': 1,
+                'inches': 1,
+                'ft': 12,
+                'foot': 12,
+                'feet': 12,
+                'yard': 36,
+                'yards': 36,
+                'mile': 63360,
+                'miles': 63360,
+                'centimeter': 2.54,
+                'centimeters': 2.54,
+                'meter': 39.37,
+                'meters': 39.37,
+                'kilometer': 39370,
+                'kilometers': 39370,
+                'cm': 2.54,
+                'm': 39.37,
+                'km': 39370
+            },
+            weight: {
+                'gram': 1,
+                'grams': 1,
+                'kilogram': 1000,
+                'kilograms': 1000,
+                'g': 1,
+                'kg': 1000,
+                'ounce': 28.35,
+                'ounces': 28.35,
+                'pound': 453.592,
+                'pounds': 453.592
+            },
+            temperature: {
+                'celsius': (c) => c,
+                'fahrenheit': (f) => (f - 32) * 5 / 9,
+                'kelvin': (k) => k - 273.15
+            }
+        };
 
         // Personalized Greetings
         if (command.includes('hello') || command.includes('hi')) {
@@ -147,13 +159,23 @@ class VoiceAssistant {
         }
 
         // Set a Timer or Alarm
-        else if (command.includes('set a timer')) {
-            const timeMatch = command.match(/set a timer for (\d+) (minutes?|hours?|seconds?)/);
+        else if (command.includes('set a timer') || command.includes('set timer')) {
+            const timeMatch = command.match(/(?:set a timer|set timer) for (\d+) (minutes?|hours?|seconds?)/);
             if (timeMatch) {
                 const time = parseInt(timeMatch[1]);
                 const unit = timeMatch[2];
+                
                 // Logic to set a timer (you may need to implement a timer function)
                 response = `Timer set for ${time} ${unit}.`; // Prepare response
+                
+                // Example: Setting a timer (for demonstration purposes)
+                const milliseconds = time * { seconds: 1000, minutes: 60000, hours: 3600000 }[unit];
+                setTimeout(() => {
+                    // console.log(`Timer for ${time} ${unit} has ended!`);
+                    const utterance = new SpeechSynthesisUtterance(`Timer for ${time} ${unit} has ended!`);
+                    utterance.lang = 'en-US'; // Set the language
+                    speechSynthesis.speak(utterance); // Speak the message 
+                }, milliseconds);
             } else {
                 response = "Please specify the duration for the timer."; // Handle error
             }
