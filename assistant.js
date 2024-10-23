@@ -213,12 +213,14 @@ class VoiceAssistant {
             try {
                 // Extract the mathematical expression from the command
                 const expression = command.replace('calculate', '').trim();
-
+                
                 // Replace 'x' with '*' for multiplication
                 const safeExpression = expression.replace(/x/g, '*');
+
+                // Evaluate the mathematical expression using Math.js
+                const result = math.evaluate(safeExpression); // Use Math.js to evaluate
                 
-                // Evaluate the mathematical expression (Make sure input is safe)
-                response = `The result is: ${eval(safeExpression)}`;
+                response = `The result is: ${result}`;
                 
             } catch (error) {
                 response = "Sorry, I couldn't calculate that. Please try a valid mathematical expression.";
