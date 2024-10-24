@@ -7,10 +7,22 @@ The Voice Assistant is a web-based application that utilizes the Web Speech API 
 - **Voice Recognition**: Listens for user commands and processes them.
 - **Speech Synthesis**: Responds to user commands with spoken responses.
 - **Commands Supported**:
-  - **Time**: Responds with the current time.
-  - **Date**: Responds with today's date.
-  - **News**: Fetches and reads the latest news article.
-  - **Greetings**: Responds with a random greeting.
+- **Hello / Hi**: Greets the user.
+- **My name is [name] / I am [name]**: Personalizes the greeting with the user's name.
+- **Set a timer for [duration]**: Sets a timer for the specified duration (e.g., "set a timer for 5 minutes").
+- **Open [website]**: Opens the specified website in a new tab.
+- **Pronounce [word]**: Pronounces the specified word.
+- **Search for [query] / Search about [query]**: Searches the web for the specified query.
+- **Tell me a joke**: Fetches and tells a random joke.
+- **Give me a quote**: Provides a random quote.
+- **Calculate [expression]**: Evaluates a mathematical expression (e.g., "calculate 5 x 5").
+- **Translate [text]**: Searches for the translation of the specified text.
+- **Define [word]**: Fetches the definition of the specified word.
+- **Convert [amount] [from unit] to [to unit]**: Converts the specified amount from one unit to another (e.g., "convert 10 inches to centimeters").
+- **News about [topic] / News on [topic]**: Fetches the latest news articles on the specified topic.
+- **Stop**: Stops any ongoing speech synthesis.
+- **Weather in [location]**: Fetches the current weather for the specified location.
+
 
 ## Usage
 1. **Setup**: Ensure you have a modern web browser that supports the Web Speech API (e.g., Chrome).
